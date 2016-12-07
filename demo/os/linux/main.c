@@ -31,12 +31,14 @@
 #include <unistd.h>
 #include "elog.h"
 
-#define log_a(...) elog_a("main.test.a", __VA_ARGS__)
-#define log_e(...) elog_e("main.test.e", __VA_ARGS__)
-#define log_w(...) elog_w("main.test.w", __VA_ARGS__)
-#define log_i(...) elog_i("main.test.i", __VA_ARGS__)
-#define log_d(...) elog_d("main.test.d", __VA_ARGS__)
-#define log_v(...) elog_v("main.test.v", __VA_ARGS__)
+#define LOG_TAG    "main"
+#define assert     ELOG_ASSERT
+#define log_a(...) elog_a(LOG_TAG, __VA_ARGS__)
+#define log_e(...) elog_e(LOG_TAG, __VA_ARGS__)
+#define log_w(...) elog_w(LOG_TAG, __VA_ARGS__)
+#define log_i(...) elog_i(LOG_TAG, __VA_ARGS__)
+#define log_d(...) elog_d(LOG_TAG, __VA_ARGS__)
+#define log_v(...) elog_v(LOG_TAG, __VA_ARGS__)
 
 static void test_elog(void);
 
@@ -52,6 +54,9 @@ int main(void) {
     elog_set_fmt(ELOG_LVL_INFO, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
     elog_set_fmt(ELOG_LVL_DEBUG, ELOG_FMT_ALL & ~ELOG_FMT_FUNC);
     elog_set_fmt(ELOG_LVL_VERBOSE, ELOG_FMT_ALL & ~ELOG_FMT_FUNC);
+#ifdef ELOG_COLOR_ENABLE
+    elog_set_text_color_enabled(true);
+#endif
     /* start EasyLogger */
     elog_start();
 
@@ -60,7 +65,7 @@ int main(void) {
     /* dynamic set output logs's level (from ELOG_LVL_ASSERT to ELOG_LVL_VERBOSE) */
 //    elog_set_filter_lvl(ELOG_LVL_WARN);
     /* dynamic set output logs's filter for tag */
-//    elog_set_filter_tag("main.test.a");
+//    elog_set_filter_tag("main");
     /* dynamic set output logs's filter for keyword */
 //    elog_set_filter_kw("Hello");
 

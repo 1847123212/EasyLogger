@@ -35,8 +35,8 @@
 #define ELOG_OUTPUT_LVL                      ELOG_LVL_VERBOSE
 /* enable assert check */
 #define ELOG_ASSERT_ENABLE
-/* log buffer size */
-#define ELOG_BUF_SIZE                        512
+/* buffer size for every line's log */
+#define ELOG_LINE_BUF_SIZE                   512
 /* output line number max length */
 #define ELOG_LINE_NUM_MAX_LEN                5
 /* output filter's tag max length */
@@ -45,5 +45,15 @@
 #define ELOG_FILTER_KW_MAX_LEN               16
 /* output newline sign */
 #define ELOG_NEWLINE_SIGN                    "\n"
+/* enable log color */
+#define ELOG_COLOR_ENABLE
+/* enable asynchronous output mode */
+#define ELOG_ASYNC_OUTPUT_ENABLE
+/* buffer size for asynchronous output mode */
+#define ELOG_ASYNC_OUTPUT_BUF_SIZE           (ELOG_LINE_BUF_SIZE * 100)
+/* each asynchronous output's log which must end with newline sign */
+//#define ELOG_ASYNC_LINE_OUTPUT
+/* asynchronous output mode using POSIX pthread implementation */
+#define ELOG_ASYNC_OUTPUT_USING_PTHREAD
 
 #endif /* _ELOG_CFG_H_ */

@@ -38,30 +38,6 @@
 extern "C" {
 #endif
 
-#if !defined(ELOG_OUTPUT_LVL)
-    #error "Please configure static output log level (in elog_cfg.h)"
-#endif
-
-#if !defined(ELOG_LINE_NUM_MAX_LEN)
-    #error "Please configure output line number max length (in elog_cfg.h)"
-#endif
-
-#if !defined(ELOG_BUF_SIZE)
-    #error "Please configure log buffer size (in elog_cfg.h)"
-#endif
-
-#if !defined(ELOG_FILTER_TAG_MAX_LEN)
-    #error "Please configure output filter's tag max length (in elog_cfg.h)"
-#endif
-
-#if !defined(ELOG_FILTER_KW_MAX_LEN)
-    #error "Please configure output filter's keyword max length (in elog_cfg.h)"
-#endif
-
-#if !defined(ELOG_NEWLINE_SIGN)
-    #error "Please configure output newline sign (in elog_cfg.h)"
-#endif
-
 /* output log's level */
 #define ELOG_LVL_ASSERT                      0
 #define ELOG_LVL_ERROR                       1
@@ -74,7 +50,7 @@ extern "C" {
 #define ELOG_LVL_TOTAL_NUM                   6
 
 /* EasyLogger software version number */
-#define ELOG_SW_VERSION                      "1.05.13"
+#define ELOG_SW_VERSION                      "1.11.25"
 
 /* EasyLogger assert for developer. */
 #ifdef ELOG_ASSERT_ENABLE
@@ -120,6 +96,14 @@ typedef struct {
     ElogFilter filter;
     size_t enabled_fmt_set[ELOG_LVL_TOTAL_NUM];
     bool output_enabled;
+    bool output_lock_enabled;
+    bool output_is_locked_before_enable;
+    bool output_is_locked_before_disable;
+
+#ifdef ELOG_COLOR_ENABLE
+    bool text_color_enabled;
+#endif
+
 }EasyLogger, *EasyLogger_t;
 
 /* EasyLogger error code */
@@ -132,6 +116,8 @@ ElogErrCode elog_init(void);
 void elog_start(void);
 void elog_set_output_enabled(bool enabled);
 bool elog_get_output_enabled(void);
+void elog_set_text_color_enabled(bool enabled);
+bool elog_get_text_color_enabled(void);
 void elog_set_fmt(uint8_t level, size_t set);
 void elog_set_filter(uint8_t level, const char *tag, const char *keyword);
 void elog_set_filter_lvl(uint8_t level);
@@ -143,6 +129,8 @@ void elog_output(uint8_t level, const char *tag, const char *file, const char *f
 void elog_output_lock_enabled(bool enabled);
 extern void (*elog_assert_hook)(const char* expr, const char* func, size_t line);
 void elog_assert_set_hook(void (*hook)(const char* expr, const char* func, size_t line));
+int8_t elog_find_lvl(const char *log);
+const char *elog_find_tag(const char *log, uint8_t lvl, size_t *tag_len);
 
 #ifndef ELOG_OUTPUT_ENABLE
 
@@ -206,17 +194,18 @@ void elog_assert_set_hook(void (*hook)(const char* expr, const char* func, size_
 #define elog_d(tag, ...)    elog_debug(tag, __VA_ARGS__)
 #define elog_v(tag, ...)    elog_verbose(tag, __VA_ARGS__)
 
+/* elog_buf.c */
+void elog_buf_enabled(bool enabled);
+void elog_flush(void);
+
+/* elog_async.c */
+void elog_async_enabled(bool enabled);
+size_t elog_async_get_log(char *log, size_t size);
+size_t elog_async_get_line_log(char *log, size_t size);
+
 /* elog_utils.c */
 size_t elog_strcpy(size_t cur_len, char *dst, const char *src);
-
-/* elog_port.c */
-ElogErrCode elog_port_init(void);
-void elog_port_output(const char *log, size_t size);
-void elog_port_output_lock(void);
-void elog_port_output_unlock(void);
-const char *elog_port_get_time(void);
-const char *elog_port_get_p_info(void);
-const char *elog_port_get_t_info(void);
+size_t elog_cpyln(char *line, const char *log, size_t len);
 
 #ifdef __cplusplus
 }

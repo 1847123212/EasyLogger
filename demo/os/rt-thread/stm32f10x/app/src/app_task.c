@@ -18,12 +18,14 @@ extern int Image$$RW_IRAM1$$ZI$$Limit;
 extern int __bss_end;
 #endif
 
-#define log_a(...) elog_a("main.test.a", __VA_ARGS__)
-#define log_e(...) elog_e("main.test.e", __VA_ARGS__)
-#define log_w(...) elog_w("main.test.w", __VA_ARGS__)
-#define log_i(...) elog_i("main.test.i", __VA_ARGS__)
-#define log_d(...) elog_d("main.test.d", __VA_ARGS__)
-#define log_v(...) elog_v("main.test.v", __VA_ARGS__)
+#define LOG_TAG    "main"
+#define assert     ELOG_ASSERT
+#define log_a(...) elog_a(LOG_TAG, __VA_ARGS__)
+#define log_e(...) elog_e(LOG_TAG, __VA_ARGS__)
+#define log_w(...) elog_w(LOG_TAG, __VA_ARGS__)
+#define log_i(...) elog_i(LOG_TAG, __VA_ARGS__)
+#define log_d(...) elog_d(LOG_TAG, __VA_ARGS__)
+#define log_v(...) elog_v(LOG_TAG, __VA_ARGS__)
 
 #define thread_sys_monitor_prio                30
 
@@ -119,6 +121,12 @@ void sys_init_thread(void* parameter){
 }
 
 static void elog_user_assert_hook(const char* ex, const char* func, size_t line) {
+
+#ifdef ELOG_ASYNC_OUTPUT_ENABLE
+    /* disable async output */
+    elog_async_enabled(false);
+#endif
+
     /* disable logger output lock */
     elog_output_lock_enabled(false);
     /* disable flash plugin lock */
@@ -131,6 +139,12 @@ static void elog_user_assert_hook(const char* ex, const char* func, size_t line)
 }
 
 static void rtt_user_assert_hook(const char* ex, const char* func, rt_size_t line) {
+
+#ifdef ELOG_ASYNC_OUTPUT_ENABLE
+    /* disable async output */
+    elog_async_enabled(false);
+#endif
+
     /* disable logger output lock */
     elog_output_lock_enabled(false);
     /* disable flash plugin lock */
@@ -172,6 +186,7 @@ static rt_err_t exception_hook(void *context) {
 
     /* write all buffered log to flash */
     elog_flash_flush();
+    while(1);
 
     return RT_EOK;
 }
